@@ -57,18 +57,37 @@ void setup() {
 }
 
 void handle_buttons(){
+  bool override = false;
   for (int index = 0; index < 3; index++)
   {
     int currentButtonState = !digitalRead(index + pinToButtonMap);
     if (currentButtonState == HIGH)
     {
-      Joystick.setButton(index, currentButtonState);
+      
       lastButtonState[index] = currentButtonState;
     }
     else{
-      Joystick.setButton(index, currentButtonState);
+      
       lastButtonState[index] = currentButtonState;
     }
+  }
+  for(int index = 0; index < 3; index++){
+    if(index == 0 && lastButtonState[0] && lastButtonState[1]){
+      Joystick.setButton(2,1);
+      Joystick.setButton(1,0);
+      Joystick.setButton(0,0);
+      override = true;
+    }
+    else{
+      if(index==2 && override == true){
+
+      }
+      else{
+        Joystick.setButton(index, lastButtonState[index]);
+      }
+      
+    }
+    
   }
 }
 
@@ -105,10 +124,10 @@ int handle_throttle(int perc_l, int perc_r){
 }
 
 void handle_ry(int perc_l, int perc_r){
-  if(perc_l < 25 && perc_r < 25){
+  if(perc_l < 5 && perc_r < 5){
     Joystick.setButton(6, 1);
   }
-  else if(perc_l>75 && perc_l > 75){
+  else if(perc_l>95 && perc_r > 95){
     Joystick.setButton(7, 1);
   }
   else{
