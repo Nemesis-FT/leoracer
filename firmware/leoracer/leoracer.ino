@@ -18,7 +18,7 @@ int lastButtonState[4] = {0,0,0};
 
 int p_toll = 5; // Tollerance (in percentage) over data from axis
 
-int calibration[] = {280,481,20,218,108,296,391,584};
+int calibration[] = {240,440,55,254,150,327,449,670};
 
 void repr_calibration(){
   for(int i=0; i<8; i++){
@@ -26,12 +26,19 @@ void repr_calibration(){
   }
 }
 
+int readIntFromEEPROM(int address)
+{
+  byte byte1 = EEPROM.read(address);
+  byte byte2 = EEPROM.read(address + 1);
+  return (byte1 << 8) + byte2;
+}
+
+
 void read_calibration(){
   Serial.println("Attempting data load from EEPROM...");
   int tmp;
-  for(int i=0; i<8; i++){
-    EEPROM.get(i, tmp);
-    calibration[i] = tmp;
+  for(int i=0; i<16; i=i+2){
+    calibration[i/2] = readIntFromEEPROM(i);;
   }
   Serial.println("Calibration data loaded from EEPROM.");
   repr_calibration();
@@ -49,7 +56,7 @@ void setup() {
   pinMode(AXIS_4, INPUT);
   Serial.begin(9600);
   delay(1000);
-  //read_calibration();
+  read_calibration();
   Joystick.setXAxisRange(-100, 100);
   Joystick.setYAxisRange(0, 1);
   Joystick.setZAxisRange(0, 100);
@@ -124,10 +131,10 @@ int handle_throttle(int perc_l, int perc_r){
 }
 
 void handle_ry(int perc_l, int perc_r){
-  if(perc_l < 5 && perc_r < 5){
+  if(perc_l < 10 && perc_r < 10){
     Joystick.setButton(6, 1);
   }
-  else if(perc_l>95 && perc_r > 95){
+  else if(perc_l>90 && perc_r > 95){
     Joystick.setButton(7, 1);
   }
   else{
@@ -140,7 +147,7 @@ void handle_axis(){
   int r_thr = to_percent(calibration[0], calibration[1], analogRead(AXIS_1));
   int r_til = to_percent(calibration[2], calibration[3], analogRead(AXIS_2));
   int l_til = to_percent(calibration[4], calibration[5], analogRead(AXIS_3));
-  int l_thr = 100-to_percent(calibration[6], calibration[7], analogRead(AXIS_4));
+  int l_thr = to_percent(calibration[6], calibration[7], analogRead(AXIS_4));
   // Calculate X axis according to throttle level on both sides;
   int x_axis = handle_x(l_thr, r_thr);
   // Calculate Y axis according to toggle status;

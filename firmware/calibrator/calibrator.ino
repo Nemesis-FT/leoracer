@@ -31,9 +31,34 @@ void repr_calibration(){
   }
 }
 
+void read_calibration(){
+  Serial.println("Attempting data load from EEPROM...");
+  int tmp;
+  for(int i=0; i<16; i=i+2){
+    calibration[i/2] = readIntFromEEPROM(i);;
+  }
+  Serial.println("Calibration data loaded from EEPROM.");
+  repr_calibration();
+}
+
+void writeIntIntoEEPROM(int address, int number)
+{ 
+  byte byte1 = number >> 8;
+  byte byte2 = number & 0xFF;
+  EEPROM.write(address, byte1);
+  EEPROM.write(address + 1, byte2);
+}
+
+int readIntFromEEPROM(int address)
+{
+  byte byte1 = EEPROM.read(address);
+  byte byte2 = EEPROM.read(address + 1);
+  return (byte1 << 8) + byte2;
+}
+
 void save(){
-  for(int i=0; i<8; i++){
-    EEPROM.write(i, calibration[i]);
+  for(int i=0; i<16; i=i+2){
+    writeIntIntoEEPROM(i, calibration[i/2]);
   }
   Serial.println("Saved calibration data to EEPROM.");
 }
@@ -51,5 +76,6 @@ void loop() {
     save();
     status+=1;
     delay(1000);
+    read_calibration();
   }
 }
