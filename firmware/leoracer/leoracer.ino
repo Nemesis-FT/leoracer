@@ -10,7 +10,7 @@
 #include <Joystick.h>
 #include <EEPROM.h>
 
-Joystick_ Joystick;
+Joystick_ Joystick(0x03, 0x4, 5, 0, true, true, true, false, false, false, false, false, false, false, false);
 
 const int pinToButtonMap = 2;
 
@@ -131,15 +131,20 @@ int handle_throttle(int perc_l, int perc_r){
 }
 
 void handle_ry(int perc_l, int perc_r){
-  if(perc_l < 10 && perc_r < 10){
-    Joystick.setButton(6, 1);
-  }
-  else if(perc_l>90 && perc_r > 95){
-    Joystick.setButton(7, 1);
+  Serial.println(perc_r);
+  Serial.println(perc_l);
+  Serial.println("====");
+  if(perc_l < 15 && perc_r < 15){
+    Joystick.setButton(3, 1);
   }
   else{
-    Joystick.setButton(6, 0);
-    Joystick.setButton(7, 0);
+    Joystick.setButton(3, 0);
+  }
+  if(perc_l>85 && perc_r > 85){
+    Joystick.setButton(4, 1);
+  }
+  else{
+    Joystick.setButton(4, 0);
   }
 }
 
