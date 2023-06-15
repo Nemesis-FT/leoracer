@@ -20,7 +20,7 @@ int p_toll = 5; // Tollerance (in percentage) over data from axis
 
 int calibration[] = {240,440,55,254,150,327,449,670};
 
-void repr_calibration(){
+void repr_calibration(){              
   for(int i=0; i<8; i++){
     Serial.println(calibration[i]);
   }
@@ -131,14 +131,11 @@ int handle_throttle(int perc_l, int perc_r){
 }
 
 void handle_ry(int perc_l, int perc_r){
-  Serial.println(perc_r);
-  Serial.println(perc_l);
-  Serial.println("====");
   if(perc_l < 15 && perc_r < 15){
     Joystick.setButton(3, 1);
   }
   else{
-    Joystick.setButton(3, 0);
+    Joystick.setButton(3, 0);  
   }
   if(perc_l>85 && perc_r > 85){
     Joystick.setButton(4, 1);
