@@ -10,17 +10,19 @@
 #include <Joystick.h>
 #include <EEPROM.h>
 
+// Joystick descriptor setup
 Joystick_ Joystick(0x03, 0x4, 5, 0, true, true, true, false, false, false, false, false, false, false, false);
-
+// Pin to Button offset
 const int pinToButtonMap = 2;
-
+// Keep latest button state
 int lastButtonState[4] = {0,0,0};
-
-int p_toll = 5; // Tollerance (in percentage) over data from axis
-
+// Variable resistors deadzone
+int p_toll = 5;
+// Default calibration array
 int calibration[] = {240,440,55,254,150,327,449,670};
 
-void repr_calibration(){              
+void repr_calibration(){     
+  // Take all the calibration data and print it out         
   for(int i=0; i<8; i++){
     Serial.println(calibration[i]);
   }
@@ -28,6 +30,7 @@ void repr_calibration(){
 
 int readIntFromEEPROM(int address)
 {
+  // Read two bytes from the starting address
   byte byte1 = EEPROM.read(address);
   byte byte2 = EEPROM.read(address + 1);
   return (byte1 << 8) + byte2;
@@ -35,6 +38,7 @@ int readIntFromEEPROM(int address)
 
 
 void read_calibration(){
+  // Calibration loader
   Serial.println("Attempting data load from EEPROM...");
   int tmp;
   for(int i=0; i<16; i=i+2){
@@ -45,7 +49,7 @@ void read_calibration(){
 }
 
 void setup() {
-  // put your setup code here, to run once:
+  // I/O setup
   pinMode(BT_WARP, INPUT_PULLUP);
   pinMode(BT_REPAIR, INPUT_PULLUP);
   pinMode(BT_TOGGLE, INPUT_PULLUP);
@@ -64,7 +68,9 @@ void setup() {
 }
 
 void handle_buttons(){
+  // Button handling function, with override for button doublepress
   bool override = false;
+  // Get the state
   for (int index = 0; index < 3; index++)
   {
     int currentButtonState = !digitalRead(index + pinToButtonMap);
@@ -78,6 +84,7 @@ void handle_buttons(){
       lastButtonState[index] = currentButtonState;
     }
   }
+  // Apply the state
   for(int index = 0; index < 3; index++){
     if(index == 0 && lastButtonState[0] && lastButtonState[1]){
       Joystick.setButton(2,1);
@@ -99,19 +106,22 @@ void handle_buttons(){
 }
 
 int to_percent(int min, int max, int value){
+  // map the value to a percentage
   return map(value, min, max, 0, 100);;
 }
 
 int handle_y(){
-    int currentButtonState = !digitalRead(BT_TOGGLE);
-    if (currentButtonState)
-    {
-      return 1;
-    }
-    return 0;
+  // handle Y axis (which is considered as on/off since its wired to a toggle)
+  int currentButtonState = !digitalRead(BT_TOGGLE);
+  if (currentButtonState)
+  {
+    return 1;
+  }
+  return 0;
 }
 
 int handle_x(int perc_l, int perc_r){
+  // handle X axis by comparing percentage of the throttles
   if(perc_l-p_toll < perc_r && perc_l+p_toll > perc_r){
     return 0;
   }
@@ -122,6 +132,7 @@ int handle_x(int perc_l, int perc_r){
 }
 
 int handle_throttle(int perc_l, int perc_r){
+  // Get the highest throttle value among the throttles
   if(perc_l>perc_r){
     return perc_l;
   }
@@ -131,6 +142,7 @@ int handle_throttle(int perc_l, int perc_r){
 }
 
 void handle_ry(int perc_l, int perc_r){
+  // Handle the rotation, done by using buttons instead of axis
   if(perc_l < 15 && perc_r < 15){
     Joystick.setButton(3, 1);
   }
@@ -146,6 +158,7 @@ void handle_ry(int perc_l, int perc_r){
 }
 
 void handle_axis(){
+  // axis handling routine
   int r_thr = to_percent(calibration[0], calibration[1], analogRead(AXIS_1));
   int r_til = to_percent(calibration[2], calibration[3], analogRead(AXIS_2));
   int l_til = to_percent(calibration[4], calibration[5], analogRead(AXIS_3));
@@ -164,6 +177,7 @@ void handle_axis(){
 }
 
 void loop() {
+  // Work with buttons, then with axis
   handle_buttons();
   handle_axis();
   delay(50);
