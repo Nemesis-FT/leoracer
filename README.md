@@ -18,7 +18,7 @@ The provided links are provided just for guidance in part-picking. I am not affi
 * Male to male patch wires and male to female patch wires;
 * Some electrical wires;
 * PCBs terminal blocks;
-* M3 screws of different sizes;
+* M3 screws of different lenghts;
 * M3 brass screw sockets;
 * 9 suction cups like this [ones](https://www.amazon.it/dp/B084BRH8GP?psc=1&ref=ppx_yo2ov_dt_b_product_details);
 * Soldering equipment;
