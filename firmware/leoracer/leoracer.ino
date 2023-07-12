@@ -91,15 +91,10 @@ void handle_buttons(){
       Joystick.setButton(1,0);
       Joystick.setButton(0,0);
       override = true;
+      break;
     }
     else{
-      if(index==2 && override == true){
-
-      }
-      else{
-        Joystick.setButton(index, lastButtonState[index]);
-      }
-      
+      Joystick.setButton(index, lastButtonState[index]);
     }
     
   }
@@ -107,7 +102,7 @@ void handle_buttons(){
 
 int to_percent(int min, int max, int value){
   // map the value to a percentage
-  return map(value, min, max, 0, 100);;
+  return map(value, min, max, 0, 100);
 }
 
 int handle_y(){
@@ -171,6 +166,9 @@ void handle_axis(){
   int throttle = handle_throttle(l_thr, r_thr);
   // Calculate ry axis according to tilt controls;
   handle_ry(l_til, r_til);
+  Serial.println("======");
+  Serial.println(r_til);
+  Serial.println(l_til);
   Joystick.setXAxis(x_axis);
   Joystick.setYAxis(y_axis);
   Joystick.setZAxis(throttle);
